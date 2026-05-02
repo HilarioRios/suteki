@@ -1,0 +1,41 @@
+# Configuración del negocio — Generado por AgentKit
+negocio:
+  nombre: "Suteki Sushi & Pokes"
+  descripcion: >
+    Restaurante de cocina Nikkei (fusión japonesa-argentina) con 3 locales en el GBA:
+    Ramos Mejía (Necochea 699), Hurlingham (Isabel la Católica 913) y Castelar (Arias 2926).
+    Especialidad en Salads, Sushi, Entradas, Platos Principales, Ramen y Piezas.
+    Pedidos online en pedir.suteki.com.ar con precios y descuentos exclusivos.
+  horario:
+    lunes: "11:00-15:00 y 19:00-23:00"
+    martes: "11:00-15:00"
+    miercoles: "11:00-15:00 y 19:00-23:00"
+    jueves: "11:00-15:00 y 19:00-23:00"
+    viernes: "11:00-15:00 y 19:00-23:00"
+    sabado: "11:00-15:00 y 19:00-23:00"
+    domingo: "19:00-23:00"
+  locales:
+    - nombre: "Ramos Mejía"
+      direccion: "Necochea 699"
+      telefono: "1178304865"
+    - nombre: "Hurlingham"
+      direccion: "Isabel la Católica 913"
+      telefono: "1168545739"
+    - nombre: "Castelar"
+      direccion: "Arias 2926"
+      telefono: "1123446005"
+  web_pedidos: "https://pedir.suteki.com.ar"
+
+agente:
+  nombre: "Nigiri San"
+  tono: "amigable-formal"
+  casos_de_uso:
+    - "Responder preguntas frecuentes (horarios, ubicaciones, menú)"
+    - "Redirigir pedidos a pedir.suteki.com.ar"
+    - "Atender quejas y soporte post-venta"
+    - "Recomendar productos de la carta"
+    - "Informar sobre promociones vigentes"
+
+metadata:
+  creado: "2026-05-02"
+  version: "1.0"
