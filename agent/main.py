@@ -1,8 +1,8 @@
 import os
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import PlainTextResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import PlainTextResponse, JSONResponse
 from dotenv import load_dotenv
 
 from agent.brain import generar_respuesta
@@ -51,7 +51,12 @@ async def webhook_verificacion(request: Request):
 
 @app.post("/webhook")
 async def webhook_handler(request: Request):
+    # Siempre retornar 200 para que Whapi no reintente
     try:
+        body = await request.body()
+        if not body:
+            return JSONResponse({"status": "ok"})
+
         mensajes = await proveedor.parsear_webhook(request)
 
         for msg in mensajes:
@@ -60,18 +65,17 @@ async def webhook_handler(request: Request):
 
             logger.info(f"Mensaje de {msg.telefono}: {msg.texto}")
 
-            historial = await obtener_historial(msg.telefono)
-            respuesta = await generar_respuesta(msg.texto, historial)
-
-            await guardar_mensaje(msg.telefono, "user", msg.texto)
-            await guardar_mensaje(msg.telefono, "assistant", respuesta)
-
-            await proveedor.enviar_mensaje(msg.telefono, respuesta)
-
-            logger.info(f"Respuesta a {msg.telefono}: {respuesta}")
-
-        return {"status": "ok"}
+            try:
+                historial = await obtener_historial(msg.telefono)
+                respuesta = await generar_respuesta(msg.texto, historial)
+                await guardar_mensaje(msg.telefono, "user", msg.texto)
+                await guardar_mensaje(msg.telefono, "assistant", respuesta)
+                await proveedor.enviar_mensaje(msg.telefono, respuesta)
+                logger.info(f"Respuesta a {msg.telefono}: {respuesta}")
+            except Exception as e:
+                logger.error(f"Error procesando mensaje de {msg.telefono}: {e}")
 
     except Exception as e:
         logger.error(f"Error en webhook: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+
+    return JSONResponse({"status": "ok"})

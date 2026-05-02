@@ -14,12 +14,22 @@ class ProveedorWhapi(ProveedorWhatsApp):
         self.url_envio = "https://gate.whapi.cloud/messages/text"
 
     async def parsear_webhook(self, request: Request) -> list[MensajeEntrante]:
-        body = await request.json()
+        try:
+            body = await request.json()
+        except Exception:
+            return []
+
         mensajes = []
         for msg in body.get("messages", []):
+            tipo = msg.get("type", "")
+            if tipo != "text":
+                continue
+            texto = msg.get("text", {}).get("body", "").strip()
+            if not texto:
+                continue
             mensajes.append(MensajeEntrante(
                 telefono=msg.get("chat_id", ""),
-                texto=msg.get("text", {}).get("body", ""),
+                texto=texto,
                 mensaje_id=msg.get("id", ""),
                 es_propio=msg.get("from_me", False),
             ))
