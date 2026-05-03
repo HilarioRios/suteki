@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
@@ -12,8 +13,7 @@ from agent.providers import obtener_proveedor
 load_dotenv()
 
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
-log_level = logging.DEBUG if ENVIRONMENT == "development" else logging.INFO
-logging.basicConfig(level=log_level)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("agentkit")
 
 proveedor = obtener_proveedor()
@@ -23,17 +23,12 @@ PORT = int(os.getenv("PORT", 8000))
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await inicializar_db()
-    logger.info("Base de datos inicializada")
-    logger.info(f"Servidor AgentKit corriendo en puerto {PORT}")
-    logger.info(f"Proveedor de WhatsApp: {proveedor.__class__.__name__}")
+    logger.info(f"Servidor AgentKit en puerto {PORT}")
+    logger.info(f"Proveedor: {proveedor.__class__.__name__}")
     yield
 
 
-app = FastAPI(
-    title="Nigiri San — Agente WhatsApp de Suteki",
-    version="1.0.0",
-    lifespan=lifespan
-)
+app = FastAPI(title="Nigiri San", version="1.0.0", lifespan=lifespan)
 
 
 @app.get("/")
@@ -51,19 +46,26 @@ async def webhook_verificacion(request: Request):
 
 @app.post("/webhook")
 async def webhook_handler(request: Request):
-    # Siempre retornar 200 para que Whapi no reintente
     try:
-        body = await request.body()
-        if not body:
+        raw = await request.body()
+        logger.info(f"Webhook raw: {raw[:800].decode('utf-8', errors='ignore')}")
+
+        if not raw:
             return JSONResponse({"status": "ok"})
 
-        mensajes = await proveedor.parsear_webhook(request)
+        try:
+            body = json.loads(raw)
+        except Exception:
+            logger.warning("Body no es JSON")
+            return JSONResponse({"status": "ok"})
+
+        mensajes = proveedor.parsear_body(body)
 
         for msg in mensajes:
             if msg.es_propio or not msg.texto:
                 continue
 
-            logger.info(f"Mensaje de {msg.telefono}: {msg.texto}")
+            logger.info(f"Procesando mensaje de {msg.telefono}: {msg.texto}")
 
             try:
                 historial = await obtener_historial(msg.telefono)
@@ -71,11 +73,11 @@ async def webhook_handler(request: Request):
                 await guardar_mensaje(msg.telefono, "user", msg.texto)
                 await guardar_mensaje(msg.telefono, "assistant", respuesta)
                 await proveedor.enviar_mensaje(msg.telefono, respuesta)
-                logger.info(f"Respuesta a {msg.telefono}: {respuesta}")
+                logger.info(f"Respuesta enviada a {msg.telefono}: {respuesta[:100]}")
             except Exception as e:
-                logger.error(f"Error procesando mensaje de {msg.telefono}: {e}")
+                logger.error(f"Error procesando mensaje: {e}", exc_info=True)
 
     except Exception as e:
-        logger.error(f"Error en webhook: {e}")
+        logger.error(f"Error en webhook: {e}", exc_info=True)
 
     return JSONResponse({"status": "ok"})
