@@ -68,6 +68,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 18px; /* respaldo para navegadores sin dvh */
       gap: clamp(14px, 3.2dvh, 26px);
       padding: max(18px, env(safe-area-inset-top)) 22px max(24px, env(safe-area-inset-bottom));
       text-align: center;
@@ -84,6 +85,7 @@
     }
 
     .marco-video {
+      width: min(64vw, 260px); /* respaldo para navegadores sin dvh */
       width: min(64vw, 34dvh, 260px);
       aspect-ratio: 1 / 1;
       border-radius: 26px;
@@ -335,14 +337,21 @@
     const maxX = window.innerWidth - w - margen;
     const maxY = window.innerHeight - h - margen;
 
-    // nueva posición lejos de la actual para que se note el salto
+    // nueva posición: lejos de la actual y SIN tapar el botón "Sí"
     const actual = btnNo.getBoundingClientRect();
+    const zonaSi = btnSi.getBoundingClientRect();
+    const holgura = 24; // espacio extra alrededor del "Sí" (late y crece)
     let x, y, intentos = 0;
     do {
       x = margen + Math.random() * (maxX - margen);
       y = margen + Math.random() * (maxY - margen);
       intentos++;
-    } while (Math.hypot(x - actual.left, y - actual.top) < 130 && intentos < 12);
+      const cerca = Math.hypot(x - actual.left, y - actual.top) < 130;
+      const tapaSi =
+        x < zonaSi.right + holgura && x + w > zonaSi.left - holgura &&
+        y < zonaSi.bottom + holgura && y + h > zonaSi.top - holgura;
+      if (!cerca && !tapaSi) break;
+    } while (intentos < 40);
 
     btnNo.style.left = x + "px";
     btnNo.style.top = y + "px";
