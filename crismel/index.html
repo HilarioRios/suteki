@@ -10,7 +10,7 @@
   <meta property="og:type" content="website" />
   <meta name="theme-color" content="#ffe9ee" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💌</text></svg>" />
-  <link rel="preload" as="video" href="https://cdn.jsdelivr.net/gh/hilariorios/suteki@b33f33d9374e0ba39e91dad0bad6dc940ba943ea/crismel/reply.mp4" type="video/mp4" />
+  <link rel="preload" as="video" href="/reply.mp4" type="video/mp4" />
   <style>
     :root {
       --fondo: #ffe9ee;
@@ -99,6 +99,18 @@
       display: block;
       pointer-events: none;
     }
+    /* respaldo si el video no puede cargar: osito emoji */
+    .marco-video .respaldo {
+      display: none;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(70px, 30vw, 120px);
+      background: linear-gradient(160deg, #fff0f4, #ffd9e3);
+    }
+    .marco-video.sin-video video { display: none; }
+    .marco-video.sin-video .respaldo { display: flex; }
 
     h1 {
       font-size: clamp(1.9rem, 9vw, 2.6rem);
@@ -213,7 +225,8 @@
 <!-- pregunta -->
 <section class="pantalla activa" id="pregunta">
   <div class="marco-video">
-    <video src="https://cdn.jsdelivr.net/gh/hilariorios/suteki@b33f33d9374e0ba39e91dad0bad6dc940ba943ea/crismel/reply.mp4" autoplay muted loop playsinline></video>
+    <video src="/reply.mp4" autoplay muted loop playsinline preload="auto"></video>
+    <div class="respaldo">🐻💌</div>
   </div>
   <h1>¿Me quieres Crismel?&nbsp;🥺</h1>
   <div class="fila-botones">
@@ -232,7 +245,8 @@
 <!-- resultado -->
 <section class="pantalla" id="resultado">
   <div class="marco-video">
-    <video src="https://cdn.jsdelivr.net/gh/hilariorios/suteki@b33f33d9374e0ba39e91dad0bad6dc940ba943ea/crismel/love.mp4" muted loop playsinline preload="auto"></video>
+    <video src="/love.mp4" muted loop playsinline preload="auto"></video>
+    <div class="respaldo">🥰💖</div>
   </div>
   <h1>¡Lo sabía! 😍</h1>
   <p class="mensaje">Feliz cumple messss 🎂💕</p>
@@ -246,6 +260,38 @@
   };
   const btnSi = document.getElementById("btnSi");
   const btnNo = document.getElementById("btnNo");
+
+  // ── reproducción robusta de videos en celular ──
+  // Algunos teléfonos (iPhone en ahorro de batería, redes lentas) bloquean
+  // el autoplay o tardan en cargar: reintentamos y, si de plano no puede,
+  // mostramos un emoji en su lugar para que nunca se vea un cuadro vacío.
+  function vigilarVideo(video) {
+    const marco = video.closest(".marco-video");
+    const intentar = () => { if (video.paused) video.play().catch(() => {}); };
+
+    video.addEventListener("canplay", () => {
+      marco.classList.remove("sin-video");
+      intentar();
+    });
+    video.addEventListener("error", () => marco.classList.add("sin-video"));
+
+    // si tras 6s no cargó nada, mostrar respaldo (se quita solo si luego carga)
+    setTimeout(() => {
+      if (video.readyState < 2) {
+        marco.classList.add("sin-video");
+        video.load(); // un reintento de carga
+      }
+    }, 6000);
+    return intentar;
+  }
+
+  const videoPregunta = pantallas.pregunta.querySelector("video");
+  const videoResultado = pantallas.resultado.querySelector("video");
+  const reproducirPregunta = vigilarVideo(videoPregunta);
+  vigilarVideo(videoResultado);
+
+  // al primer toque en cualquier parte, despertar el video si está pausado
+  document.addEventListener("pointerdown", reproducirPregunta, { once: false });
 
   function mostrar(nombre) {
     for (const p of Object.values(pantallas)) p.classList.remove("activa");
