@@ -2,39 +2,42 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <title>¿Me quieres Crismel? 💌</title>
   <meta name="description" content="Tengo una pregunta muy importante para ti…" />
   <meta property="og:title" content="¿Me quieres Crismel? 💌" />
   <meta property="og:description" content="Tengo una pregunta muy importante para ti…" />
   <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#ffe9ee" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💌</text></svg>" />
+  <link rel="preload" as="video" href="https://cdn.jsdelivr.net/gh/hilariorios/suteki@b33f33d9374e0ba39e91dad0bad6dc940ba943ea/crismel/reply.mp4" type="video/mp4" />
   <style>
     :root {
       --fondo: #ffe9ee;
-      --fondo-2: #ffd9e3;
+      --fondo-2: #ffd4e0;
       --tinta: #8c2f45;
       --rosa: #ff5c77;
-      --rosa-suave: #ffb3c1;
+      --rosa-suave: #ffc2cd;
       --blanco: #fffafb;
       --fuente: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN",
         Quicksand, "Comic Sans MS", "Segoe UI", system-ui, sans-serif;
     }
+    * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
       margin: 0;
       font-family: var(--fuente);
       color: var(--tinta);
       background: linear-gradient(180deg, var(--fondo) 0%, var(--fondo-2) 100%);
-      background-attachment: fixed;
       overflow: hidden;
+      overscroll-behavior: none;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
       user-select: none;
       -webkit-user-select: none;
     }
 
-    /* corazones flotantes de fondo */
+    /* ── corazones flotantes de fondo ─────────────────── */
     .cielo {
       position: fixed;
       inset: 0;
@@ -45,147 +48,161 @@
     .corazon-flotante {
       position: absolute;
       bottom: -8vh;
-      font-size: 22px;
       opacity: 0;
+      will-change: transform, opacity;
       animation: flotar linear infinite;
     }
     @keyframes flotar {
       0%   { transform: translateY(0) rotate(-8deg); opacity: 0; }
-      10%  { opacity: .5; }
-      90%  { opacity: .35; }
+      10%  { opacity: .45; }
+      90%  { opacity: .3; }
       100% { transform: translateY(-115vh) rotate(10deg); opacity: 0; }
     }
-    @media (prefers-reduced-motion: reduce) {
-      .corazon-flotante { animation: none; display: none; }
-    }
 
-    .escena {
-      position: relative;
+    /* ── pantallas ────────────────────────────────────── */
+    .pantalla {
+      position: fixed;
+      inset: 0;
       z-index: 1;
-      height: 100dvh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .tarjeta {
-      width: min(400px, 100%);
+      gap: clamp(14px, 3.2dvh, 26px);
+      padding: max(18px, env(safe-area-inset-top)) 22px max(24px, env(safe-area-inset-bottom));
       text-align: center;
-      background: var(--blanco);
-      border-radius: 28px;
-      padding: 28px 22px 30px;
-      box-shadow: 0 18px 50px rgba(255, 92, 119, .28);
-      box-sizing: border-box;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px) scale(.98);
+      transition: opacity .45s ease, transform .45s ease, visibility 0s linear .45s;
+    }
+    .pantalla.activa {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+      transition: opacity .45s ease, transform .45s ease;
     }
 
-    .tarjeta video {
-      width: min(230px, 62vw);
-      border-radius: 18px;
+    .marco-video {
+      width: min(64vw, 34dvh, 260px);
+      aspect-ratio: 1 / 1;
+      border-radius: 26px;
+      overflow: hidden;
+      background: var(--blanco);
+      box-shadow: 0 16px 40px rgba(255, 92, 119, .3);
+      flex: none;
+    }
+    .marco-video video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       display: block;
-      margin: 0 auto 18px;
       pointer-events: none;
-      background: var(--fondo);
     }
 
     h1 {
-      font-size: clamp(1.7rem, 8vw, 2.4rem);
-      margin: 0 0 22px;
-      line-height: 1.15;
+      font-size: clamp(1.9rem, 9vw, 2.6rem);
+      margin: 0;
+      line-height: 1.12;
       text-wrap: balance;
     }
 
-    .zona-botones {
-      position: relative;
-      height: 130px;
+    .nota {
+      margin: 0;
+      font-size: .95rem;
+      opacity: .6;
     }
 
+    /* ── botones ──────────────────────────────────────── */
+    .fila-botones {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: center;
+    }
     .btn {
-      position: absolute;
-      top: 0;
       border: none;
       border-radius: 999px;
-      padding: 14px 34px;
+      padding: 16px 38px;
       font-family: inherit;
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       font-weight: 700;
       cursor: pointer;
       color: #fff;
-      transition: transform .15s ease, box-shadow .15s ease;
+      min-width: 120px;
+      min-height: 56px;
     }
-    .btn:active { transform: scale(.95); }
     .btn:focus-visible { outline: 3px solid var(--tinta); outline-offset: 3px; }
 
     .btn-si {
-      left: 8%;
       background: var(--rosa);
-      box-shadow: 0 6px 18px rgba(255, 92, 119, .55);
-      animation: latido 1.6s ease-in-out infinite;
+      box-shadow: 0 8px 22px rgba(255, 92, 119, .5);
+      animation: latido 1.5s ease-in-out infinite;
+      will-change: transform;
     }
     @keyframes latido {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .btn-si { animation: none; }
+      0%, 100% { transform: scale(var(--crecer, 1)); }
+      50%      { transform: scale(calc(var(--crecer, 1) * 1.08)); }
     }
 
     .btn-no {
-      right: 8%;
       background: var(--rosa-suave);
       color: var(--tinta);
-      box-shadow: 0 4px 12px rgba(140, 47, 69, .22);
-      transition: left .18s ease-out, top .18s ease-out;
+      box-shadow: 0 5px 14px rgba(140, 47, 69, .2);
+      will-change: transform;
     }
-
-    .nota {
-      margin: 14px 0 0;
-      font-size: .85rem;
-      opacity: .65;
-    }
-
-    /* pantalla de resultado */
-    .resultado { display: none; }
-    .resultado h1 { margin-bottom: 8px; }
-    .resultado p {
-      font-size: 1.05rem;
+    /* cuando huye, se mueve por TODA la pantalla */
+    .btn-no.huyendo {
+      position: fixed;
+      z-index: 10;
       margin: 0;
-      opacity: .8;
+      transition: left .28s cubic-bezier(.2, .9, .3, 1.2), top .28s cubic-bezier(.2, .9, .3, 1.2);
     }
 
-    /* corazón cargando */
-    .cargando {
-      display: none;
-      text-align: center;
-    }
+    /* ── corazón cargando ─────────────────────────────── */
     .latiendo {
-      font-size: 90px;
+      font-size: clamp(80px, 22vw, 120px);
       display: inline-block;
-      animation: palpitar .9s ease-in-out infinite;
+      animation: palpitar .8s ease-in-out infinite;
+      will-change: transform;
     }
     @keyframes palpitar {
       0%, 100% { transform: scale(1); }
-      30% { transform: scale(1.25); }
-      60% { transform: scale(.95); }
+      30% { transform: scale(1.28); }
+      60% { transform: scale(.94); }
     }
-    .cargando p {
-      font-size: 1.1rem;
-      margin-top: 10px;
-      color: var(--tinta);
+    #cargando p {
+      font-size: 1.15rem;
+      margin: 0;
+      opacity: .75;
     }
 
-    /* confeti de corazones al aceptar */
+    /* ── resultado ────────────────────────────────────── */
+    #resultado h1 { font-size: clamp(2rem, 10vw, 2.8rem); }
+    #resultado .mensaje {
+      font-size: clamp(1.15rem, 5.4vw, 1.45rem);
+      font-weight: 700;
+      margin: 0;
+      color: var(--rosa);
+    }
+
+    /* ── confeti de corazones ─────────────────────────── */
     .confeti {
       position: fixed;
       top: -8vh;
-      font-size: 26px;
       pointer-events: none;
-      z-index: 5;
-      animation: caer 2.8s ease-in forwards;
+      z-index: 20;
+      will-change: transform, opacity;
+      animation: caer ease-in forwards;
     }
     @keyframes caer {
-      to { transform: translateY(120vh) rotate(360deg); opacity: .2; }
+      to { transform: translateY(120vh) rotate(340deg); opacity: .15; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .corazon-flotante, .confeti { animation: none; display: none; }
+      .btn-si, .latiendo { animation: none; }
+      .pantalla, .btn-no.huyendo { transition: none; }
     }
   </style>
 </head>
@@ -193,101 +210,135 @@
 
 <div class="cielo" id="cielo"></div>
 
-<div class="escena">
-  <!-- pregunta -->
-  <div class="tarjeta" id="pregunta">
+<!-- pregunta -->
+<section class="pantalla activa" id="pregunta">
+  <div class="marco-video">
     <video src="https://cdn.jsdelivr.net/gh/hilariorios/suteki@b33f33d9374e0ba39e91dad0bad6dc940ba943ea/crismel/reply.mp4" autoplay muted loop playsinline></video>
-    <h1>¿Me quieres Crismel? 🥺</h1>
-    <div class="zona-botones" id="zonaBotones">
-      <button class="btn btn-si" id="btnSi">Sí 💖</button>
-      <button class="btn btn-no" id="btnNo">No</button>
-    </div>
-    <p class="nota">Piénsalo bien…</p>
   </div>
+  <h1>¿Me quieres Crismel?&nbsp;🥺</h1>
+  <div class="fila-botones">
+    <button class="btn btn-si" id="btnSi">Sí 💖</button>
+    <button class="btn btn-no" id="btnNo">No</button>
+  </div>
+  <p class="nota">Piénsalo bien…</p>
+</section>
 
-  <!-- cargando -->
-  <div class="cargando" id="cargando">
-    <span class="latiendo">💗</span>
-    <p>Guardando tu respuesta…</p>
-  </div>
+<!-- cargando -->
+<section class="pantalla" id="cargando">
+  <span class="latiendo">💗</span>
+  <p>Guardando tu respuesta…</p>
+</section>
 
-  <!-- resultado -->
-  <div class="tarjeta resultado" id="resultado">
-    <video src="https://cdn.jsdelivr.net/gh/hilariorios/suteki@b33f33d9374e0ba39e91dad0bad6dc940ba943ea/crismel/love.mp4" loop playsinline preload="auto"></video>
-    <h1>¡Lo sabía! 😍</h1>
-    <p>Feliz cumple messss 🎂💕</p>
+<!-- resultado -->
+<section class="pantalla" id="resultado">
+  <div class="marco-video">
+    <video src="https://cdn.jsdelivr.net/gh/hilariorios/suteki@b33f33d9374e0ba39e91dad0bad6dc940ba943ea/crismel/love.mp4" muted loop playsinline preload="auto"></video>
   </div>
-</div>
+  <h1>¡Lo sabía! 😍</h1>
+  <p class="mensaje">Feliz cumple messss 🎂💕</p>
+</section>
 
 <script>
-  const pregunta = document.getElementById("pregunta");
-  const cargando = document.getElementById("cargando");
-  const resultado = document.getElementById("resultado");
-  const zona = document.getElementById("zonaBotones");
+  const pantallas = {
+    pregunta: document.getElementById("pregunta"),
+    cargando: document.getElementById("cargando"),
+    resultado: document.getElementById("resultado"),
+  };
   const btnSi = document.getElementById("btnSi");
   const btnNo = document.getElementById("btnNo");
+
+  function mostrar(nombre) {
+    for (const p of Object.values(pantallas)) p.classList.remove("activa");
+    pantallas[nombre].classList.add("activa");
+  }
 
   // corazones flotantes de fondo
   const cielo = document.getElementById("cielo");
   const simbolos = ["💗", "💕", "💖", "🩷", "❤️"];
-  for (let i = 0; i < 14; i++) {
+  for (let i = 0; i < 10; i++) {
     const c = document.createElement("span");
     c.className = "corazon-flotante";
     c.textContent = simbolos[i % simbolos.length];
-    c.style.left = Math.random() * 96 + "%";
-    c.style.fontSize = 14 + Math.random() * 18 + "px";
-    c.style.animationDuration = 7 + Math.random() * 8 + "s";
-    c.style.animationDelay = -Math.random() * 12 + "s";
+    c.style.left = Math.random() * 94 + "%";
+    c.style.fontSize = 15 + Math.random() * 16 + "px";
+    c.style.animationDuration = 8 + Math.random() * 8 + "s";
+    c.style.animationDelay = -Math.random() * 14 + "s";
     cielo.appendChild(c);
   }
 
-  // el botón "No" huye: funciona con mouse, dedo y teclado
+  // ── el botón "No" huye por toda la pantalla ──
   let escapadas = 0;
+  const excusas = ["No", "¿Segura? 🤨", "Piénsalo 🥹", "Última chance", "😢", "Di que sí 💘"];
+
   function huir() {
     escapadas++;
-    const maxX = zona.clientWidth - btnNo.offsetWidth;
-    const maxY = zona.clientHeight - btnNo.offsetHeight;
-    btnNo.style.right = "auto";
-    btnNo.style.left = Math.random() * Math.max(maxX, 0) + "px";
-    btnNo.style.top = Math.random() * Math.max(maxY, 0) + "px";
-    const excusas = ["No", "¿Segura? 🤨", "Piénsalo 🥹", "Última chance", "😢", "Di que sí 💘"];
-    btnNo.textContent = excusas[Math.min(escapadas, excusas.length - 1)];
-    // el "Sí" crece cada vez que el "No" escapa
-    const escala = Math.min(1 + escapadas * 0.07, 1.6);
-    btnSi.style.transform = "scale(" + escala + ")";
-  }
-  btnNo.addEventListener("mouseover", huir);
-  btnNo.addEventListener("touchstart", (e) => { e.preventDefault(); huir(); }, { passive: false });
-  btnNo.addEventListener("click", (e) => { e.preventDefault(); huir(); });
 
-  // botón "Sí"
+    // primera huida: fijar posición actual antes de soltarlo
+    if (!btnNo.classList.contains("huyendo")) {
+      const r = btnNo.getBoundingClientRect();
+      btnNo.classList.add("huyendo");
+      btnNo.style.left = r.left + "px";
+      btnNo.style.top = r.top + "px";
+      // forzar reflow para que la transición aplique desde aquí
+      btnNo.getBoundingClientRect();
+    }
+
+    const margen = 14;
+    const w = btnNo.offsetWidth;
+    const h = btnNo.offsetHeight;
+    const maxX = window.innerWidth - w - margen;
+    const maxY = window.innerHeight - h - margen;
+
+    // nueva posición lejos de la actual para que se note el salto
+    const actual = btnNo.getBoundingClientRect();
+    let x, y, intentos = 0;
+    do {
+      x = margen + Math.random() * (maxX - margen);
+      y = margen + Math.random() * (maxY - margen);
+      intentos++;
+    } while (Math.hypot(x - actual.left, y - actual.top) < 130 && intentos < 12);
+
+    btnNo.style.left = x + "px";
+    btnNo.style.top = y + "px";
+    btnNo.textContent = excusas[Math.min(escapadas, excusas.length - 1)];
+
+    // el "Sí" crece cada vez que el "No" escapa
+    btnSi.style.setProperty("--crecer", Math.min(1 + escapadas * 0.06, 1.45));
+
+    if (navigator.vibrate) navigator.vibrate(30);
+  }
+
+  btnNo.addEventListener("pointerdown", (e) => { e.preventDefault(); huir(); });
+  btnNo.addEventListener("mouseenter", huir);
+  btnNo.addEventListener("click", (e) => e.preventDefault());
+
+  // ── botón "Sí" ──
   btnSi.addEventListener("click", () => {
-    pregunta.style.display = "none";
-    cargando.style.display = "block";
+    btnNo.remove();
+    mostrar("cargando");
+    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
 
     setTimeout(() => {
-      cargando.style.display = "none";
-      resultado.style.display = "block";
-      const video = resultado.querySelector("video");
-      video.muted = true; // autoplay móvil requiere silencio inicial
+      mostrar("resultado");
+      const video = pantallas.resultado.querySelector("video");
       video.play().catch(() => {});
       lloverCorazones();
-    }, 2200);
+    }, 1900);
   });
 
   function lloverCorazones() {
-    const reducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducido) return;
-    for (let i = 0; i < 24; i++) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    for (let i = 0; i < 26; i++) {
       setTimeout(() => {
         const c = document.createElement("span");
         c.className = "confeti";
         c.textContent = simbolos[Math.floor(Math.random() * simbolos.length)];
-        c.style.left = Math.random() * 96 + "vw";
-        c.style.animationDuration = 1.8 + Math.random() * 1.6 + "s";
+        c.style.left = Math.random() * 94 + "vw";
+        c.style.fontSize = 18 + Math.random() * 16 + "px";
+        c.style.animationDuration = 1.9 + Math.random() * 1.6 + "s";
         document.body.appendChild(c);
-        setTimeout(() => c.remove(), 3600);
-      }, i * 90);
+        setTimeout(() => c.remove(), 3800);
+      }, i * 85);
     }
   }
 </script>
