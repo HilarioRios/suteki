@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>¿Me quieres Crismel? 💌</title>
+  <meta name="description" content="Tengo una pregunta muy importante para ti…" />
+  <meta property="og:title" content="¿Me quieres Crismel? 💌" />
+  <meta property="og:description" content="Tengo una pregunta muy importante para ti…" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💌</text></svg>" />
+  <style>
+    :root {
+      --fondo: #ffe9ee;
+      --fondo-2: #ffd9e3;
+      --tinta: #8c2f45;
+      --rosa: #ff5c77;
+      --rosa-suave: #ffb3c1;
+      --blanco: #fffafb;
+      --fuente: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN",
+        Quicksand, "Comic Sans MS", "Segoe UI", system-ui, sans-serif;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--fuente);
+      color: var(--tinta);
+      background: linear-gradient(180deg, var(--fondo) 0%, var(--fondo-2) 100%);
+      background-attachment: fixed;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* corazones flotantes de fondo */
+    .cielo {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .corazon-flotante {
+      position: absolute;
+      bottom: -8vh;
+      font-size: 22px;
+      opacity: 0;
+      animation: flotar linear infinite;
+    }
+    @keyframes flotar {
+      0%   { transform: translateY(0) rotate(-8deg); opacity: 0; }
+      10%  { opacity: .5; }
+      90%  { opacity: .35; }
+      100% { transform: translateY(-115vh) rotate(10deg); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .corazon-flotante { animation: none; display: none; }
+    }
+
+    .escena {
+      position: relative;
+      z-index: 1;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .tarjeta {
+      width: min(400px, 100%);
+      text-align: center;
+      background: var(--blanco);
+      border-radius: 28px;
+      padding: 28px 22px 30px;
+      box-shadow: 0 18px 50px rgba(255, 92, 119, .28);
+      box-sizing: border-box;
+    }
+
+    .tarjeta video {
+      width: min(230px, 62vw);
+      border-radius: 18px;
+      display: block;
+      margin: 0 auto 18px;
+      pointer-events: none;
+      background: var(--fondo);
+    }
+
+    h1 {
+      font-size: clamp(1.7rem, 8vw, 2.4rem);
+      margin: 0 0 22px;
+      line-height: 1.15;
+      text-wrap: balance;
+    }
+
+    .zona-botones {
+      position: relative;
+      height: 130px;
+    }
+
+    .btn {
+      position: absolute;
+      top: 0;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 34px;
+      font-family: inherit;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .btn:active { transform: scale(.95); }
+    .btn:focus-visible { outline: 3px solid var(--tinta); outline-offset: 3px; }
+
+    .btn-si {
+      left: 8%;
+      background: var(--rosa);
+      box-shadow: 0 6px 18px rgba(255, 92, 119, .55);
+      animation: latido 1.6s ease-in-out infinite;
+    }
+    @keyframes latido {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn-si { animation: none; }
+    }
+
+    .btn-no {
+      right: 8%;
+      background: var(--rosa-suave);
+      color: var(--tinta);
+      box-shadow: 0 4px 12px rgba(140, 47, 69, .22);
+      transition: left .18s ease-out, top .18s ease-out;
+    }
+
+    .nota {
+      margin: 14px 0 0;
+      font-size: .85rem;
+      opacity: .65;
+    }
+
+    /* pantalla de resultado */
+    .resultado { display: none; }
+    .resultado h1 { margin-bottom: 8px; }
+    .resultado p {
+      font-size: 1.05rem;
+      margin: 0;
+      opacity: .8;
+    }
+
+    /* corazón cargando */
+    .cargando {
+      display: none;
+      text-align: center;
+    }
+    .latiendo {
+      font-size: 90px;
+      display: inline-block;
+      animation: palpitar .9s ease-in-out infinite;
+    }
+    @keyframes palpitar {
+      0%, 100% { transform: scale(1); }
+      30% { transform: scale(1.25); }
+      60% { transform: scale(.95); }
+    }
+    .cargando p {
+      font-size: 1.1rem;
+      margin-top: 10px;
+      color: var(--tinta);
+    }
+
+    /* confeti de corazones al aceptar */
+    .confeti {
+      position: fixed;
+      top: -8vh;
+      font-size: 26px;
+      pointer-events: none;
+      z-index: 5;
+      animation: caer 2.8s ease-in forwards;
+    }
+    @keyframes caer {
+      to { transform: translateY(120vh) rotate(360deg); opacity: .2; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cielo" id="cielo"></div>
+
+<div class="escena">
+  <!-- pregunta -->
+  <div class="tarjeta" id="pregunta">
+    <video src="https://cdn.jsdelivr.net/gh/hilariorios/suteki@b33f33d9374e0ba39e91dad0bad6dc940ba943ea/crismel/reply.mp4" autoplay muted loop playsinline></video>
+    <h1>¿Me quieres Crismel? 🥺</h1>
+    <div class="zona-botones" id="zonaBotones">
+      <button class="btn btn-si" id="btnSi">Sí 💖</button>
+      <button class="btn btn-no" id="btnNo">No</button>
+    </div>
+    <p class="nota">Piénsalo bien…</p>
+  </div>
+
+  <!-- cargando -->
+  <div class="cargando" id="cargando">
+    <span class="latiendo">💗</span>
+    <p>Guardando tu respuesta…</p>
+  </div>
+
+  <!-- resultado -->
+  <div class="tarjeta resultado" id="resultado">
+    <video src="https://cdn.jsdelivr.net/gh/hilariorios/suteki@b33f33d9374e0ba39e91dad0bad6dc940ba943ea/crismel/love.mp4" loop playsinline preload="auto"></video>
+    <h1>¡Lo sabía! 😍</h1>
+    <p>Feliz cumple messss 🎂💕</p>
+  </div>
+</div>
+
+<script>
+  const pregunta = document.getElementById("pregunta");
+  const cargando = document.getElementById("cargando");
+  const resultado = document.getElementById("resultado");
+  const zona = document.getElementById("zonaBotones");
+  const btnSi = document.getElementById("btnSi");
+  const btnNo = document.getElementById("btnNo");
+
+  // corazones flotantes de fondo
+  const cielo = document.getElementById("cielo");
+  const simbolos = ["💗", "💕", "💖", "🩷", "❤️"];
+  for (let i = 0; i < 14; i++) {
+    const c = document.createElement("span");
+    c.className = "corazon-flotante";
+    c.textContent = simbolos[i % simbolos.length];
+    c.style.left = Math.random() * 96 + "%";
+    c.style.fontSize = 14 + Math.random() * 18 + "px";
+    c.style.animationDuration = 7 + Math.random() * 8 + "s";
+    c.style.animationDelay = -Math.random() * 12 + "s";
+    cielo.appendChild(c);
+  }
+
+  // el botón "No" huye: funciona con mouse, dedo y teclado
+  let escapadas = 0;
+  function huir() {
+    escapadas++;
+    const maxX = zona.clientWidth - btnNo.offsetWidth;
+    const maxY = zona.clientHeight - btnNo.offsetHeight;
+    btnNo.style.right = "auto";
+    btnNo.style.left = Math.random() * Math.max(maxX, 0) + "px";
+    btnNo.style.top = Math.random() * Math.max(maxY, 0) + "px";
+    const excusas = ["No", "¿Segura? 🤨", "Piénsalo 🥹", "Última chance", "😢", "Di que sí 💘"];
+    btnNo.textContent = excusas[Math.min(escapadas, excusas.length - 1)];
+    // el "Sí" crece cada vez que el "No" escapa
+    const escala = Math.min(1 + escapadas * 0.07, 1.6);
+    btnSi.style.transform = "scale(" + escala + ")";
+  }
+  btnNo.addEventListener("mouseover", huir);
+  btnNo.addEventListener("touchstart", (e) => { e.preventDefault(); huir(); }, { passive: false });
+  btnNo.addEventListener("click", (e) => { e.preventDefault(); huir(); });
+
+  // botón "Sí"
+  btnSi.addEventListener("click", () => {
+    pregunta.style.display = "none";
+    cargando.style.display = "block";
+
+    setTimeout(() => {
+      cargando.style.display = "none";
+      resultado.style.display = "block";
+      const video = resultado.querySelector("video");
+      video.muted = true; // autoplay móvil requiere silencio inicial
+      video.play().catch(() => {});
+      lloverCorazones();
+    }, 2200);
+  });
+
+  function lloverCorazones() {
+    const reducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducido) return;
+    for (let i = 0; i < 24; i++) {
+      setTimeout(() => {
+        const c = document.createElement("span");
+        c.className = "confeti";
+        c.textContent = simbolos[Math.floor(Math.random() * simbolos.length)];
+        c.style.left = Math.random() * 96 + "vw";
+        c.style.animationDuration = 1.8 + Math.random() * 1.6 + "s";
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 3600);
+      }, i * 90);
+    }
+  }
+</script>
+
+</body>
+</html>
